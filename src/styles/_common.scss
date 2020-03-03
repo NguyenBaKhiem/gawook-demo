@@ -1,0 +1,49 @@
+body::before {
+  display: none;
+  content: "desktop";
+}
+
+@media only screen and (min-width: 768px) and (max-width: 992px) {
+  body::before {
+    content: "tablet"; 
+  } 
+}
+
+@media only screen and (max-width: 768px) {
+  body::before {
+    content: "mobile"; 
+  } 
+}
+.w-100 {
+	width: 100%;
+}
+.f-l {
+	float: left;
+}
+.f-r {
+	float: right;
+}
+.cursor-pointer {
+	cursor: pointer;
+}
+.d-f {
+	display: flex;
+}
+.d-n {
+	display: none;
+}
+.d-i {
+	display: inline;
+}
+.overflow-x-visible {
+	overflow-x: visible;
+}
+.overflow-x-hidden {
+	overflow-x: hidden;
+}
+.overflow-y-visible {
+	overflow-y: visible;
+}
+.overflow-y-hidden {
+	overflow-y: hidden;
+}

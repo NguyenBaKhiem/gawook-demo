@@ -1,30 +1,101 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
-import Home from "../views/Home.vue";
+import Vue from 'vue'
+import Router from 'vue-router'
 
-Vue.use(VueRouter);
+Vue.use(Router)
 
-const routes = [
+/* Layout */
+import Layout from '@/layout/index.vue'
+
+
+export const constantRoutes = [
+  // {
+  //   path: '/redirect',
+  //   component: Layout,
+  //   hidden: true,
+  //   children: [
+  //     {
+  //       path: '/redirect/:path*',
+  //       component: () => import('../views/redirect/index')
+  //     }
+  //   ]
+  // },
+  // {
+  //   path: '/login',
+  //   component: () => import('@views/login/index'),
+  //   hidden: true
+  // },
+  // {
+  //   path: '/auth-redirect',
+  //   component: () => import('@views/login/auth-redirect'),
+  //   hidden: true
+  // },
   {
-    path: "/",
-    name: "Home",
-    component: Home
+    path: '/',
+    component: Layout,
+    redirect: '/',
+    children: [
+      {
+        path: '/',
+        component: () => import('../views/home/index'),
+        name: 'Home',
+        meta: { title: 'Home', affix: true }
+      },
+      // {
+      //   path: '/message',
+      //   component: () => import('../views/message/index'),
+      //   name: 'Message',
+      //   meta: { title: 'Message', affix: true }
+      // }
+    ]
   },
-  {
-    path: "/about",
-    name: "About",
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(/* webpackChunkName: "about" */ "../views/About.vue")
-  }
-];
+  // {
+  //   path: '/message',
+  //   component: Layout,
+  //   redirect: '/message',
+  //   children: [
+  //     {
+  //       path: '',
+  //       component: () => import('@/views/home/index'),
+  //       name: 'Home',
+  //       meta: { title: 'Home', affix: true }
+  //     }
+  //   ]
+  // },
+]
 
-const router = new VueRouter({
-  mode: "history",
-  base: process.env.BASE_URL,
-  routes
-});
+/**
+ * asyncRoutes
+ * the routes that need to be dynamically loaded based on user roles
+ */
+export const asyncRoutes = [
+  // {
+  //   path: '/profile',
+  //   component: Layout,
+  //   hidden: true,
+  //   children: [
+  //     {
+  //       path: '',
+  //       component: () => import('@/views/profile/index'),
+  //       name: 'Profile',
+  //       meta: { title: 'profile', icon: 'user' }
+  //     }
+  //   ]
+  // },
+  { path: '*', redirect: '/404', hidden: true }
+]
 
-export default router;
+const createRouter = () => new Router({
+  mode: 'history', // require service support
+  scrollBehavior: () => ({ y: 0 }),
+  routes: constantRoutes
+})
+
+const router = createRouter()
+
+// Detail see: https://github.com/vuevue-router/issues/1234#issuecomment-357941465
+export function resetRouter() {
+  const newRouter = createRouter()
+  router.matcher = newRouter.matcher // reset router
+}
+
+export default router

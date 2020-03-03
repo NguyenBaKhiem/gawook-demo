@@ -1,0 +1,649 @@
+<template>
+  <div class="home-desktop-container">
+    <div class="clearfix">
+      <el-row :gutter="1">
+        <el-col :sm="7" :md="6">
+          <div class="grid-content bg-purple">
+            <el-card shadow="never" :body-style="{ padding: '5px 10px 0' }">
+              <div class="info">
+                <router-link to="/">
+                <el-avatar :size="32" src="https://empty" @error="errorHandler">
+                  <img src="https://cube.elemecdn.com/e/fd/0fc7d20532fdaf769a25683617711png.png"/>
+                </el-avatar>
+                </router-link>
+                <div class="title">
+                  Chat
+                </div>
+                <div class="toolbar">
+                  <i class="el-icon-edit"></i>
+                  <i class="el-icon-setting"></i>
+                </div>
+              </div>
+              <div class="search-box">
+                <el-input
+                      placeholder="Type something"
+                      prefix-icon="el-icon-search"
+                      size="small"
+                      clearable
+                      v-model="key">
+                </el-input>
+              </div>
+              <div class="message-component">
+                <div class="message-queue" v-click-outside="outsideMessageQueue">
+                  <el-collapse v-model="activeName" accordion>
+                    <el-collapse-item name="1">
+                      <template slot="title">
+                        Tin nhắn chờ <el-badge class="mark" :value="12" :max="10" />
+                      </template>
+                      <ul>
+                        <li>
+                          <div class="queue-m-item">
+                            <i class="el-icon-chat-dot-square"></i>
+                            <div class="message">
+                              <div class="message-title">Tin nhắn chờ</div>
+                              <div class="message-from">HiHi</div>
+                            </div>
+                            <el-dropdown size="small" type="primary">
+                              <i class="el-icon-warning"></i>
+                              <el-dropdown-menu slot="dropdown">
+                               <el-dropdown-item icon="el-icon-check">Chấp nhận</el-dropdown-item>
+                               <el-dropdown-item icon="el-icon-close">Xóa</el-dropdown-item>
+                              </el-dropdown-menu>
+                            </el-dropdown>
+                          </div>
+                        </li>
+                        <li>
+                          <div class="queue-m-item">
+                            <i class="el-icon-chat-dot-square"></i>
+                            <div class="message">
+                              <div class="message-title">Tin nhắn chờ</div>
+                              <div class="message-from">HiHi</div>
+                            </div>
+                            <el-dropdown size="small" type="primary">
+                            <i class="el-icon-warning"></i>
+                            <el-dropdown-menu slot="dropdown">
+                             <el-dropdown-item icon="el-icon-check">Chấp nhận</el-dropdown-item>
+                             <el-dropdown-item icon="el-icon-close">Xóa</el-dropdown-item>
+                            </el-dropdown-menu>
+                          </el-dropdown>
+                          </div>
+                        </li>
+                        <li>
+                          <div class="queue-m-item">
+                            <i class="el-icon-chat-dot-square"></i>
+                            <div class="message">
+                              <div class="message-title">Tin nhắn chờ</div>
+                              <div class="message-from">HiHi</div>
+                            </div>
+                            <el-dropdown size="small" type="primary">
+                            <i class="el-icon-warning"></i>
+                            <el-dropdown-menu slot="dropdown">
+                             <el-dropdown-item icon="el-icon-check">Chấp nhận</el-dropdown-item>
+                             <el-dropdown-item icon="el-icon-close">Xóa</el-dropdown-item>
+                            </el-dropdown-menu>
+                          </el-dropdown>
+                          </div>
+                        </li>
+                      </ul>
+                    </el-collapse-item>
+                  </el-collapse>
+                </div>
+                <div class="messages-list">
+                  <ul class="touch-y">
+                    <li v-for="(m, i) in messages" :key="i" @click="addTab(editableTabsValue, m)">
+                      <div class="sender-image">
+                        <el-avatar :size="48" :src="m.avatar" @error="errorHandler">
+                          <img src="https://cube.elemecdn.com/e/fd/0fc7d20532fdaf769a25683617711png.png"/>
+                        </el-avatar>
+                      </div>
+                      <div class="mes-detail">
+                        <div class="sender-name">
+                          <span class="name">{{ m.name }}</span>
+                        </div>
+                        <div class="mes-preview">
+                          <span class="preview-content">{{ m.message }}</span> <div aria-hidden="true" class="dot">·</div> <abbr class="last-time" title="">{{ m.time }}</abbr>
+                        </div>
+                      </div>
+                      <div class="mes-advanced">
+                        <i class="el-icon-star-on"></i>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </el-card>
+          </div>
+        </el-col>
+        <el-col :sm="17" :md="18">
+          <div class="grid-content .bg-purple-light d-f">
+            <div class="grid-main">
+              <el-card shadow="never" :body-style="{ padding: '0' }" class="header-wrapp">
+                <el-page-header content="message" title="back" @back="goBack">
+                </el-page-header>
+                <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab" stretch>
+                  <el-tab-pane
+                    v-for="(item, index) in editableTabs"
+                    :key="item.name"
+                    :label="item.title"
+                    :name="item.name"
+                    lazy>
+                     <template v-if="item.content ==''">
+                      <loading />
+                    </template>
+<!--                    <template v-else> -->
+                      {{item.content}}
+<!--                     </template> -->
+                  </el-tab-pane>
+                </el-tabs>
+              </el-card>
+            </div>
+            <game-bar @right-bar-hander="isOpenRightBar = $event" />
+          </div>
+        </el-col>
+      </el-row>
+    </div>
+    
+  </div>
+</template>
+
+<script>
+  import { mapGetters } from 'vuex';
+  import GameBar from '@/components/games';
+  import Loading from '@/components/loading/index';
+
+  export default {
+    name: 'Desktop',
+    components: {
+      GameBar,
+      Loading
+    },
+    data() {
+      return {
+        key: '',
+        logout: '',
+        activeName: '',
+        isOpenRightBar: true,
+        loading: true,
+        messages: [
+          {
+            id: '1',
+            name: 'Yuki khiêm Nguyễn',
+            avatar: '',
+            message: '',
+            time: 'T4'
+          },
+          {
+            id: '2',
+            name: 'Thess Ahn',
+            avatar: '',
+            message: 'blabla',
+            time: 'T4'
+          },
+          {
+            id: '3',
+            name: 'Thùy Khánh',
+            avatar: '',
+            message: 'Em ơi',
+            time: 'T4'
+          },
+          {
+            id: '4',
+            name: 'Nguyệtt Hoàngg',
+            avatar: '',
+            message: 'hihi',
+            time: 'T4'
+          },
+          {
+            id: '5',
+            name: 'Huy Nguyễn',
+            avatar: '',
+            message: '',
+            time: 'T4'
+          },
+          {
+            id: '6',
+            name: 'Lâm Đào',
+            avatar: '',
+            message: 'blabla',
+            time: 'T4'
+          },
+          {
+            id: '7',
+            name: 'Nam Bùi',
+            avatar: '',
+            message: 'blabla',
+            time: 'T4'
+          },
+          {
+            id: '8',
+            name: 'Dung Ngô',
+            avatar: '',
+            message: 'blabla',
+            time: 'T4'
+          },
+          {
+            id: '9',
+            name: 'Vũ Phương Thảo',
+            avatar: '',
+            message: 'blabla',
+            time: 'T4'
+          },
+          {
+            id: '10',
+            name: 'Lợn',
+            avatar: '',
+            message: 'blabla',
+            time: 'T4'
+          },
+          {
+            id: '11',
+            name: 'Thanh Xuân',
+            avatar: '',
+            message: 'blabla',
+            time: 'T4'
+          },
+          {
+            id: '12',
+            name: 'Bùi Mạnh Dũng',
+            avatar: '',
+            message: 'blabla',
+            time: 'T4'
+          },
+          {
+            id: '13',
+            name: 'Nam Lão đệ',
+            avatar: '',
+            message: 'blabla',
+            time: 'T4'
+          },
+          {
+            id: '14',
+            name: 'Đỗ Lan',
+            avatar: '',
+            message: 'blabla',
+            time: 'T4'
+          }
+        ],
+        editableTabsValue: 0,
+        editableTabs: []
+      }
+    },
+    computed: {
+      ...mapGetters([
+        'user',
+        'device'
+      ]),
+    },
+    methods: {
+      errorHandler() {
+        return true
+      },
+      outsideMessageQueue() {
+        this.activeName = ''
+      },
+      changeRightBar() {
+
+      },
+      addTab(targetName, user) {
+        let existed = false;
+        this.editableTabs.find(tab => {
+          if(tab.name === user.id) {
+            existed = true;
+          }
+        })
+        console.log(existed)
+        if(!existed) {
+          this.editableTabs.push({
+            title: user.name,
+            name: user.id,
+            content: user.message
+          });
+        }
+        this.editableTabsValue = user.id;
+      },
+      removeTab(targetName) {
+        let tabs = this.editableTabs;
+        let activeName = this.editableTabsValue;
+        if (activeName === targetName) {
+          tabs.forEach((tab, index) => {
+            if (tab.name === targetName) {
+              let nextTab = tabs[index + 1] || tabs[index - 1];
+              if (nextTab) {
+                activeName = nextTab.name;
+              }
+            }
+          });
+        }
+        
+        this.editableTabsValue = activeName;
+        this.editableTabs = tabs.filter(tab => tab.name !== targetName);
+      },
+      goBack() {
+        this.$router.back()
+      }
+    }
+  }
+</script>
+
+<style lang="scss" scoped>
+@import '@/sass/_mixin.scss';
+@keyframes move-forever {
+  0% {
+    @include translate(-90px, 0%);
+  }
+  100% {
+    @include translate(85px, 0%);
+  }
+}
+
+.home-desktop-container {
+  background-color: #e3e3e3;
+  min-height: 100vh;
+  .pan-info-roles {
+    font-size: 12px;
+    font-weight: 700;
+    color: #333;
+    display: block;
+  }
+  .bg-purple-dark {
+    background: #99a9bf;
+  }
+  .bg-purple {
+    background: #d3dce6;
+  }
+  .bg-purple-light {
+    background: #e5e9f2;
+  }
+  .grid-content {
+    height: 100vh;
+    .grid-main {
+      background-color: #ffffff;
+      flex-grow: 1;
+      flex-shrink: 1;
+      overflow-y: auto;
+      width: 474px;
+      .header-wrapp {
+        width: 100%;
+        position: relative;
+        .el-page-header {
+          line-height: 46px;
+        }
+        /deep/.el-tabs {
+          .el-tabs__nav-wrap.is-scrollable {
+            padding: 0 30px;
+            .el-tabs__nav-next, .el-tabs__nav-prev {
+              font-size: 20px;
+              line-height: 40px;
+              width: 30px;
+            }
+          }
+          .el-tabs__content {
+            height: calc(100vh - 102px);
+            .el-tab-pane {
+              height: 100%;
+            }
+          }
+          .el-tabs__item {
+            
+            width: 126px;
+            position: relative;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            .el-icon-close {
+              position: absolute;
+              top: 14px;
+              right: 5px;
+            }
+          }
+        }
+      }
+    }
+    /deep/ .el-card {
+      border-radius: 0;
+      border: none;
+      .info {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /deep/ .el-avatar {
+          margin-right: 5px;
+        }
+        .toolbar {
+          width: 64px;
+          margin-left: 5px;
+          i {
+            border-radius: 50%;
+            padding: 5px;
+            background-color: #f1f1f1;
+            font-size: 20px;
+            cursor: pointer;
+            &:hover {
+              background-color: #ebebeb;
+            }
+          }
+        }
+        .title {
+          flex-grow: 1;
+          text-align: center;
+        }
+      }
+      .search-box {
+        margin: 5px 0;
+      }
+      .message-component {
+        height: calc(100vh - 79px);
+        overflow-x: hidden;
+        overflow-y: scroll;
+        position: relative;
+        padding: 0px 5px;
+        &::-webkit-scrollbar-track {
+          -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0);
+          border-radius: 0;
+        }
+
+        &::-webkit-scrollbar {
+          width: 5px;
+          background-color: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          border-radius: 10px;
+          background-image: -webkit-gradient(linear,
+           left bottom,
+           left top,
+           color-stop(0.44, rgb(122,153,217)),
+           color-stop(0.72, rgb(73,125,189)),
+           color-stop(0.86, rgb(28,58,148)));
+        }
+        .message-queue {
+          padding: 0px 0px 0px 5px;
+          margin: 0 -10px;
+          /deep/ .el-collapse {
+            border-left: 1px solid #e6ebf5;
+            .el-collapse-item__header {
+              background-color: #f4f4f4;
+            }
+            .el-collapse-item__content {
+              padding-bottom : 0;
+              background-color: #f9f9f9;
+            }
+          }
+          ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            li {
+              border-top: 1px solid #e6ebf5;
+              cursor: pointer;
+              &:hover {
+                background-color: #f6f6f6;
+              }
+              .queue-m-item {
+                display: flex;
+                align-items: center;
+                .el-icon-chat-dot-square {
+                  width: 32px;
+                  font-size: 30px;
+                }
+                /deep/ .el-dropdown {
+                  width: 24px;
+                  .el-icon-warning {
+                    font-size: 16px;
+                    &:before {
+                      color: #2585d7;
+                    }
+                  }
+                }
+                .message {
+                  flex-grow: 1;
+                }
+              }
+            }
+          }
+        }
+        .messages-list {
+          margin: 0 -5px;
+          ul{
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            > li {
+              cursor: pointer;
+              width: calc(100% - 10px);
+              height: 64px;
+              overflow: hidden;
+              display: flex;
+              flex: 1 1 auto;
+              padding: 0 5px;
+              margin: 5px 0;
+              border-radius: 6px;
+              transition: all 0.5s;
+              &:hover {
+                background-color: #f1f1f1;
+              }
+              .sender-image {
+                display: flex;
+                align-items: center;
+                margin-right: 10px;
+                line-height: 0;
+              }
+              .mes-detail {
+                display: flex;
+                flex-direction: column;
+                flex: 1 1 0px;
+                justify-content: center;
+                min-width: 0;
+                padding-right: 5px;
+                .sender-name {
+                  display: flex;
+                  justify-content: space-between;
+                  .name {
+                    font-size: 14px;
+                    font-weight: bold;
+                    padding-bottom:3px;
+                    flex: 1 1 0%;
+                    min-width: 0;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                  }
+                }
+                .mes-preview{
+                  display: flex;
+                  align-items: baseline;
+                  justify-content: left;
+                  .preview-content {
+                    margin-right: 0;
+                    flex: 0 1 auto;
+                    min-width: 0;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: pre;
+                    color: rgba(153, 153, 153, 1);
+                    font-size: 12px;
+                  }
+                  .dot {
+                    color: rgba(0, 0, 0, .40);
+                    font-size: 13px;
+                    margin-left: 4px;
+                    margin-right: 4px;
+                  }
+                  .last-time {
+                    padding-top: 0;
+                    white-space: nowrap;
+                    border-bottom: none;
+                    text-decoration: none;
+                    color: rgba(0, 0, 0, .40);
+                    display: inline-block;
+                    font-size: 12px;
+                    font-weight: 400;
+                  }
+                }
+              }
+              .mes-advanced {
+                display: flex;
+                justify-content: right;
+                align-items: center;
+                .el-icon-star-on {
+                  position: relative;
+                  right: -2px;
+                  font-size: 18px;
+                  &:before {
+                    color: #2585d7;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    .wave-wrapp {
+      width: 100%;
+      height: 50px;
+      position: absolute;
+      bottom: 0px;
+      .wave {
+        display: block;
+        width: 100%;
+        margin: 0;
+        height: 50px;
+        .parallax{
+          > use {
+            @include animation(move-forever 12s linear infinite);
+          }
+          > use:nth-child(1) {
+            @include animation-delay(-2s);
+            @include translate(-110px,0%);
+          }
+          > use:nth-child(2) {
+            @include animation-delay(-2s);
+            @include animation-duration(7s);
+          }
+          > use:nth-child(3) {
+            @include animation-delay(-4s);
+            @include animation-duration(4s);
+            @include translate(-65px,0%);
+          }
+        } 
+      }
+    }
+  }
+}
+::v-deep.el-dropdown-menu {
+  .el-icon-check {
+    &:before {
+      color: #409EFF;
+    }
+  }
+  .el-icon-close {
+    &:before {
+      color: #F56C6C;
+    }
+  }
+}
+</style>
+<style>
+  @import '~hooper/dist/hooper.css';
+</style>

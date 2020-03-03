@@ -1,0 +1,12 @@
+// Fonts
+@import url('https://fonts.googleapis.com/css?family=Montserrat&display=swap');
+
+// Variables
+@import 'variables';
+@import 'common';
+@import 'icomoon';
+
+body {
+	font-family: $font-family-root-sans-serif;
+	font-size: $font-size-root;
+}
